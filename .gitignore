@@ -1,3 +1,8 @@
+# MITIE Shared Libraries
+cygmitie.dll
+libmitie.dll.a
+mitie.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
