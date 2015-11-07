@@ -1,6 +1,8 @@
 # MITIE-Writer
 A PyQt text editor that keeps track of named entities as you type.
 
+![Early Function Example](https://github.com/nickstanisha/MITIE-Writer/blob/master/screenshots/mitie_1.PNG)
+
 ## Prerequisites
 * Python 2.7
 * [MITIE](https://github.com/mit-nlp/MITIE) state-of-the-art information extraction tool
