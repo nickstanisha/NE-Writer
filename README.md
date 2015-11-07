@@ -11,6 +11,12 @@ A PyQt text editor that keeps track of named entities as you type.
 
 Launch the text editor with `python app.py`
 
+## Upcoming Features
+* Custom language model support
+* Saving document entities to disk
+* In-text highlighting for entities
+* Increased memory efficiency for calls to MITIE
+
 
 #### Note
 This was originallly a fork of [Peter Goldsborough's Writer-Tutorial project](https://github.com/goldsborough/Writer-Tutorial).  See his [original README.md](https://github.com/goldsborough/Writer-Tutorial/blob/master/README.md) for additional information.
