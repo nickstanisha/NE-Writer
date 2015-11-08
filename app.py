@@ -17,8 +17,9 @@ class Main(QtGui.QMainWindow):
 
         self.changesSaved = True
 
-        print "Loading language model"
-        self.ner = named_entity_extractor('../MITIE-master/MITIE-models/english/ner_model.dat')
+        self.loaded_language = False
+
+        self.ner = ''
 
         self.initUI()  
 
@@ -33,6 +34,11 @@ class Main(QtGui.QMainWindow):
         self.openAction.setStatusTip("Open existing document")
         self.openAction.setShortcut("Ctrl+O")
         self.openAction.triggered.connect(self.open)
+
+        self.loadModelAction = QtGui.QAction(QtGui.QIcon("icons/open2.png"),"Load language model",self)
+        self.loadModelAction.setStatusTip("Load MITIE NER model")
+        self.loadModelAction.setShortcut("Ctrl+L")
+        self.loadModelAction.triggered.connect(self.loadModel)
 
         self.saveAction = QtGui.QAction(QtGui.QIcon("icons/save.png"),"Save",self)
         self.saveAction.setStatusTip("Save document")
@@ -239,6 +245,7 @@ class Main(QtGui.QMainWindow):
         file = menubar.addMenu("File")
         edit = menubar.addMenu("Edit")
         view = menubar.addMenu("View")
+        language = menubar.addMenu("Language")
 
         # Add the most important actions to the menubar
 
@@ -268,6 +275,8 @@ class Main(QtGui.QMainWindow):
         view.addAction(toolbarAction)
         view.addAction(formatbarAction)
         view.addAction(statusbarAction)
+
+        language.addAction(self.loadModelAction)
 
     def initUI(self):
 
@@ -303,24 +312,24 @@ class Main(QtGui.QMainWindow):
     def changed(self):
         self.changesSaved = False
         # TO DO: More space efficient way of getting last key
-        key = str(self.text.toPlainText())
-        sentences = nl_tokenize.sent_tokenize(key)
-        complete_sentences = all('.' in s or '!' in s or '?' in s for s in sentences)
-        if complete_sentences:
-            if len(sentences) != self.sentence_count:
-                tokens = tokenize(key)
-                entities = self.ner.extract_entities(tokens)
-                print "\n\n\n===================================================="
-                for e in entities:
-                    range = e[0]
-                    tag = e[1]
-                    score = e[2]
-                    score_text = "{:0.3f}".format(score)
-                    entity_text = " ".join(tokens[i] for i in range)
-                    print "   Score: " + score_text + ": " + tag + ": " + entity_text
+        if self.loaded_language:
+            key = str(self.text.toPlainText())
+            sentences = nl_tokenize.sent_tokenize(key)
+            complete_sentences = all('.' in s or '!' in s or '?' in s for s in sentences)
+            if complete_sentences:
+                if len(sentences) != self.sentence_count:
+                    tokens = tokenize(key)
+                    entities = self.ner.extract_entities(tokens)
+                    print "\n\n\n===================================================="
+                    for e in entities:
+                        range = e[0]
+                        tag = e[1]
+                        score = e[2]
+                        score_text = "{:0.3f}".format(score)
+                        entity_text = " ".join(tokens[i] for i in range)
+                        print "   Score: " + score_text + ": " + tag + ": " + entity_text
 
-
-            self.sentence_count = len(sentences)
+                    self.sentence_count = len(sentences)
 
     def closeEvent(self,event):
 
@@ -551,6 +560,15 @@ class Main(QtGui.QMainWindow):
         if self.filename:
             with open(self.filename,"rt") as file:
                 self.text.setText(file.read())
+
+
+    def loadModel(self):
+        self.filename = QtGui.QFileDialog.getOpenFileName(self, 'Open File','.','(*.dat)')
+        if self.filename:
+            QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            self.ner = self.ner = named_entity_extractor(str(self.filename))
+            self.loaded_language = True
+            QtGui.QApplication.restoreOverrideCursor()
 
     def save(self):
 
