@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, json
 from nltk import tokenize as nl_tokenize
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -39,6 +39,10 @@ class Main(QtGui.QMainWindow):
         self.loadModelAction.setStatusTip("Load MITIE NER model")
         self.loadModelAction.setShortcut("Ctrl+L")
         self.loadModelAction.triggered.connect(self.loadModel)
+
+        self.refreshTagsAction = QtGui.QAction(QtGui.QIcon("icons/redo.png"),"Refresh Entity Tags",self)
+        self.refreshTagsAction.setStatusTip("Relabel all entities in document")
+        self.refreshTagsAction.triggered.connect(self.get_tags)
 
         self.saveAction = QtGui.QAction(QtGui.QIcon("icons/save.png"),"Save",self)
         self.saveAction.setStatusTip("Save document")
@@ -277,6 +281,7 @@ class Main(QtGui.QMainWindow):
         view.addAction(statusbarAction)
 
         language.addAction(self.loadModelAction)
+        language.addAction(self.refreshTagsAction)
 
     def initUI(self):
 
@@ -318,18 +323,20 @@ class Main(QtGui.QMainWindow):
             complete_sentences = all('.' in s or '!' in s or '?' in s for s in sentences)
             if complete_sentences:
                 if len(sentences) != self.sentence_count:
-                    tokens = tokenize(key)
-                    entities = self.ner.extract_entities(tokens)
-                    print "\n\n\n===================================================="
-                    for e in entities:
-                        range = e[0]
-                        tag = e[1]
-                        score = e[2]
-                        score_text = "{:0.3f}".format(score)
-                        entity_text = " ".join(tokens[i] for i in range)
-                        print "   Score: " + score_text + ": " + tag + ": " + entity_text
-
+                    entities = self.get_tags()
                     self.sentence_count = len(sentences)
+
+    def get_tags(self):
+        entities = list()
+        if self.loaded_language:
+            tokens = tokenize(str(self.text.toPlainText()))
+            entities = self.ner.extract_entities(tokens)
+            print "\n\n\n===================================================="
+            for e in entities:
+                tag = e[1]
+                print "   " + tag + ": " + " ".join(tokens[i] for i in e[0])
+        return entities
+
 
     def closeEvent(self,event):
 
@@ -563,10 +570,10 @@ class Main(QtGui.QMainWindow):
 
 
     def loadModel(self):
-        self.filename = QtGui.QFileDialog.getOpenFileName(self, 'Open File','.','(*.dat)')
-        if self.filename:
+        modelfile = QtGui.QFileDialog.getOpenFileName(self, 'Open File','.','(*.dat)')
+        if modelfile:
             QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-            self.ner = self.ner = named_entity_extractor(str(self.filename))
+            self.ner = self.ner = named_entity_extractor(str(modelfile))
             self.loaded_language = True
             QtGui.QApplication.restoreOverrideCursor()
 
@@ -579,8 +586,36 @@ class Main(QtGui.QMainWindow):
         if self.filename:
             
             # Append extension if not there yet
-            if not self.filename.endswith(".writer"):
+            if not self.filename.endsWith(".writer"):
               self.filename += ".writer"
+
+            if self.loaded_language:
+                entity_filename = ''.join(str(i) for i in self.filename.split('.')[:-1])+'.entities'
+                tokens = tokenize(str(self.text.toPlainText()))
+                entities = self.get_tags()
+
+                # Encode as JSON
+                data = {'PERSON':{'count':0, 'entities':dict()}, 
+                        'LOCATION':{'count':0, 'entities':dict()}, 
+                        'ORGANIZATION':{'count':0, 'entities':dict()},
+                        'MISC':{'count':0, 'entities':dict()}}
+
+                for e in entities:
+                    tag = e[1]
+                    text = " ".join(tokens[i] for i in e[0])
+                    if tag not in data:
+                        data[tag] = {'count':1}
+                        data[tag]['entities'] = dict()
+                    else:
+                        data[tag]['count'] += 1
+
+                    if text not in data[tag]['entities']:
+                        data[tag]['entities'][text] = 1
+                    else:
+                        data[tag]['entities'][text] += 1
+
+                with open(entity_filename,'w') as outfile:
+                    json.dump(data, outfile)
 
             # We just store the contents of the text file along with the
             # format in html, which Qt does in a very nice way for us
