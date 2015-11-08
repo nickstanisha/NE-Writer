@@ -64,10 +64,10 @@ class Find(QtGui.QDialog):
     def find(self):
 
         # Grab the parent's text
-        text = self.parent.text.toPlainText()
+        text = str(self.parent.text.toPlainText())
 
         # And the text to find
-        query = self.findField.toPlainText()
+        query = str(self.findField.toPlainText())
 
         if self.normalRadio.isChecked():
 
