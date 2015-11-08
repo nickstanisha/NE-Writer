@@ -11,15 +11,17 @@
 
 Launch the text editor with `python app.py`
 
-## Loading a Language Model
+### Loading a Language Model
 ![Loading a language Model](https://github.com/nickstanisha/MITIE-Writer/blob/master/screenshots/loadMITIE.PNG)
 
 Using the "Language" button on the menu bar to navigate to a MITIE language model to use for named entity recognititon.  You can use the [English or Spanish models provided by MITIE](https://github.com/mit-nlp/MITIE#initial-setup) or you can [train your own](https://github.com/mit-nlp/MITIE/blob/master/examples/python/train_ner.py).
 
-## Upcoming Features
-* Saving document entities to disk
+### Saving entities to disk
+Entities are now automatically saved to their own [.entities file](https://github.com/nickstanisha/MITIE-Writer/wiki/.entities-file) whenever the document is saved.
+
+### Upcoming Features
 * In-text highlighting for entities
-* Increased memory efficiency for calls to MITIE
+* User-added entity tags
 
 
 #### Note
