@@ -1,5 +1,5 @@
-# MITIE-Writer
-(pronounced "Mighty Writer") A PyQt text editor that highlights named entities as you type.  It also saves the entity data to your harddrive for easy querying and management of your documents later on.
+# NE-Writer
+A PyQt text editor that highlights named entities as you type.  It also saves the entity data to your harddrive for easy querying and management of your documents later on.
 
 ![Early Function Example](https://github.com/nickstanisha/NE-Writer/blob/master/screenshots/mitie_1.PNG)
 
