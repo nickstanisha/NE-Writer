@@ -1,5 +1,5 @@
 # MITIE-Writer
-(pronounced "Mighty Writer") A PyQt text editor that keeps track of named entities as you type.  You can also save the entity data to your harddrive for easy querying and management of your documents later on.
+(pronounced "Mighty Writer") A PyQt text editor that highlights named entities as you type.  You can also save the entity data to your harddrive for easy querying and management of your documents later on.
 
 ![Early Function Example](https://github.com/nickstanisha/MITIE-Writer/blob/master/screenshots/mitie_1.PNG)
 
