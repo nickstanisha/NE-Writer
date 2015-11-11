@@ -1,4 +1,4 @@
-import sys, os, json
+import sys, os, json, re
 from nltk import tokenize as nl_tokenize
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -21,6 +21,12 @@ class Main(QtGui.QMainWindow):
 
         self.ner = ''
 
+        self.colors = {'PERSON':QtGui.QColor.fromRgb(255, 0, 0, 100),
+                        'LOCATION':QtGui.QColor.fromRgb(0, 0, 255, 100),
+                        'ORGANIZATION':QtGui.QColor.fromRgb(0, 255, 0, 100),
+                        'MISC':QtGui.QColor.fromRgb(255, 0, 255, 100)
+                        }
+
         self.initUI()  
 
     def initToolbar(self):
@@ -42,7 +48,20 @@ class Main(QtGui.QMainWindow):
 
         self.refreshTagsAction = QtGui.QAction(QtGui.QIcon("icons/redo.png"),"Refresh Entity Tags",self)
         self.refreshTagsAction.setStatusTip("Relabel all entities in document")
+        self.refreshTagsAction.setShortcut("F5")
         self.refreshTagsAction.triggered.connect(self.get_tags)
+
+        self.changePersonColor = QtGui.QAction(QtGui.QIcon("icons/highlight.png"), "Person", self)
+        self.changePersonColor.triggered.connect(lambda: self.change_colors('PERSON'))
+
+        self.changeLocationColor = QtGui.QAction(QtGui.QIcon("icons/highlight.png"), "Location", self)
+        self.changeLocationColor.triggered.connect(lambda: self.change_colors('LOCATION'))
+
+        self.changeOrganizationColor = QtGui.QAction(QtGui.QIcon("icons/highlight.png"), "Organization", self)
+        self.changeOrganizationColor.triggered.connect(lambda: self.change_colors('ORGANIZATION'))
+
+        self.changeMiscColor = QtGui.QAction(QtGui.QIcon("icons/highlight.png"), "Misc", self)
+        self.changeMiscColor.triggered.connect(lambda: self.change_colors('MISC'))
 
         self.saveAction = QtGui.QAction(QtGui.QIcon("icons/save.png"),"Save",self)
         self.saveAction.setStatusTip("Save document")
@@ -282,6 +301,12 @@ class Main(QtGui.QMainWindow):
 
         language.addAction(self.loadModelAction)
         language.addAction(self.refreshTagsAction)
+        colormenu = language.addMenu("Change Tag Colors")
+
+        colormenu.addAction(self.changePersonColor)
+        colormenu.addAction(self.changeLocationColor)
+        colormenu.addAction(self.changeOrganizationColor)
+        colormenu.addAction(self.changeMiscColor)
 
     def initUI(self):
 
@@ -323,8 +348,8 @@ class Main(QtGui.QMainWindow):
             complete_sentences = all('.' in s or '!' in s or '?' in s for s in sentences)
             if complete_sentences:
                 if len(sentences) != self.sentence_count:
-                    entities = self.get_tags()
                     self.sentence_count = len(sentences)
+                    entities = self.get_tags()
 
     def get_tags(self):
         entities = list()
@@ -335,7 +360,40 @@ class Main(QtGui.QMainWindow):
             for e in entities:
                 tag = e[1]
                 print "   " + tag + ": " + " ".join(tokens[i] for i in e[0])
+            self.highlight_entities(entities, tokens)
         return entities
+
+    def highlight_entities(self, entities, tokens):
+        mystring = str(self.text.toPlainText())
+        cursor = self.text.textCursor()
+        original_position = cursor.position()
+
+        for e in entities:
+            query = " ".join(tokens[i] for i in e[0])
+            tag = e[1]
+            color = self.colors[tag]
+            cursor = self.text.textCursor()
+            self.text.setTextCursor(cursor)
+            
+            cursor_positions = [(m.start(), m.end()) for m in re.finditer(query, mystring)]
+
+            for start, end in cursor_positions:
+                cursor = self.text.textCursor()
+                cursor.setPosition(start)
+                cursor.movePosition(QtGui.QTextCursor.Right,QtGui.QTextCursor.KeepAnchor,end - start)
+                #self.text.setTextBackgroundColor(color)
+                self.text.setTextCursor(cursor)
+            
+            self.text.setTextBackgroundColor(color)
+
+        cursor = self.text.textCursor()
+        cursor.setPosition(original_position)
+        self.text.setTextCursor(cursor)
+
+    def change_colors(self, tag):
+        color = QtGui.QColorDialog.getColor()
+        self.colors[tag] = color
+        self.get_tags()
 
 
     def closeEvent(self,event):
@@ -575,6 +633,7 @@ class Main(QtGui.QMainWindow):
             QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
             self.ner = self.ner = named_entity_extractor(str(modelfile))
             self.loaded_language = True
+            self.sentence_count = len(nl_tokenize.sent_tokenize(str(self.text.toPlainText())))
             QtGui.QApplication.restoreOverrideCursor()
 
     def save(self):
