@@ -19,6 +19,8 @@ class Main(QtGui.QMainWindow):
 
         self.loaded_language = False
 
+        self.do_highlight = True
+
         self.ner = ''
 
         self.colors = {'PERSON':QtGui.QColor.fromRgb(255, 0, 0, 100),
@@ -50,6 +52,9 @@ class Main(QtGui.QMainWindow):
         self.refreshTagsAction.setStatusTip("Relabel all entities in document")
         self.refreshTagsAction.setShortcut("F5")
         self.refreshTagsAction.triggered.connect(self.get_tags)
+
+        self.toggleHighlightingAction = QtGui.QAction("Toggle Highlighting", self)
+        self.toggleHighlightingAction.triggered.connect(self.toggle_highlighting)
 
         self.changePersonColor = QtGui.QAction(QtGui.QIcon("icons/highlight.png"), "Person", self)
         self.changePersonColor.triggered.connect(lambda: self.change_colors('PERSON'))
@@ -302,6 +307,8 @@ class Main(QtGui.QMainWindow):
         language.addAction(self.loadModelAction)
         language.addAction(self.refreshTagsAction)
         colormenu = language.addMenu("Change Tag Colors")
+        language.addSeparator()
+        language.addAction(self.toggleHighlightingAction)
 
         colormenu.addAction(self.changePersonColor)
         colormenu.addAction(self.changeLocationColor)
@@ -360,7 +367,8 @@ class Main(QtGui.QMainWindow):
             for e in entities:
                 tag = e[1]
                 print "   " + tag + ": " + " ".join(tokens[i] for i in e[0])
-            self.highlight_entities(entities, tokens)
+            if self.do_highlight:
+                self.highlight_entities(entities, tokens)
         return entities
 
     def highlight_entities(self, entities, tokens):
@@ -389,6 +397,27 @@ class Main(QtGui.QMainWindow):
         cursor = self.text.textCursor()
         cursor.setPosition(original_position)
         self.text.setTextCursor(cursor)
+
+    def toggle_highlighting(self):
+        if self.loaded_language:
+            self.do_highlight = not self.do_highlight
+            if not self.do_highlight:
+                end = len(str(self.text.toPlainText()))
+                cursor = self.text.textCursor()
+                pos = cursor.position()
+
+                cursor.setPosition(0)
+                cursor.movePosition(QtGui.QTextCursor.Right,QtGui.QTextCursor.KeepAnchor,end)
+                self.text.setTextCursor(cursor)
+                self.text.setTextBackgroundColor(QtGui.QColor.fromRgb(255, 255, 255))
+                
+                cursor = self.text.textCursor()
+                cursor.setPosition(pos)
+                self.text.setTextCursor(cursor)
+            else:
+                
+                self.get_tags()
+
 
     def change_colors(self, tag):
         color = QtGui.QColorDialog.getColor()
