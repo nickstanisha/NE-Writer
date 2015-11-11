@@ -1,5 +1,5 @@
 # MITIE-Writer
-(pronounced "Mighty Writer") A PyQt text editor that keeps track of named entities as you type.
+(pronounced "Mighty Writer") A PyQt text editor that keeps track of named entities as you type.  You can also save the entity data to your harddrive for easy querying and management of your documents later on.
 
 ![Early Function Example](https://github.com/nickstanisha/MITIE-Writer/blob/master/screenshots/mitie_1.PNG)
 
@@ -11,16 +11,19 @@
 
 Launch the text editor with `python app.py`
 
-### Loading a Language Model
+### Language Menu
 ![Loading a language Model](https://github.com/nickstanisha/MITIE-Writer/blob/master/screenshots/loadMITIE.PNG)
 
-Using the "Language" button on the menu bar to navigate to a MITIE language model to use for named entity recognititon.  You can use the [English or Spanish models provided by MITIE](https://github.com/mit-nlp/MITIE#initial-setup) or you can [train your own](https://github.com/mit-nlp/MITIE/blob/master/examples/python/train_ner.py).
+The Language menu enables several functions:
+* **Load language model** - Allows you to navigate to a MITIE language model to use for named entity recognititon.  You can use the [English or Spanish models provided by MITIE](https://github.com/mit-nlp/MITIE#initial-setup) or you can [train your own](https://github.com/mit-nlp/MITIE/blob/master/examples/python/train_ner.py).
+* **Refresh Entity Tags** - Relabels entities in your document.  By default, MITIE-Writer reevaluates the entities whenever (a) there is a textChanged event and (b) the resulting document is a set of complete sentences (fragments are not sent for labeling)
+* **Change Tag Colors** - Change the highlighting colors for different tags.  By default, 'Person' is red, 'Location' is blue, 'Organization' is green, and 'Miscellaneous' is purple.
+* **Toggle Highlighting** - Turn entity highlighting on/off.  Note that this only changes the appearance of your text editor, your entities are still being recorded.
 
 ### Saving entities to disk
 Entities are now automatically saved to their own [.entities file](https://github.com/nickstanisha/MITIE-Writer/wiki/.entities-file) whenever the document is saved.
 
 ### Upcoming Features
-* In-text highlighting for entities
 * User-added entity tags
 
 
