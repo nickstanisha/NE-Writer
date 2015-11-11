@@ -16,7 +16,7 @@ Launch the text editor with `python app.py`
 
 The Language menu enables several functions:
 * **Load language model** - Allows you to navigate to a MITIE language model to use for named entity recognititon.  You can use the [English or Spanish models provided by MITIE](https://github.com/mit-nlp/MITIE#initial-setup) or you can [train your own](https://github.com/mit-nlp/MITIE/blob/master/examples/python/train_ner.py).
-* **Refresh Entity Tags** - Relabels entities in your document.  By default, MITIE-Writer reevaluates the entities whenever (a) there is a textChanged event and (b) the resulting document is a set of complete sentences (fragments are not sent for labeling)
+* **Refresh Entity Tags** - Relabels entities in your document.  By default, MITIE-Writer reevaluates the entities whenever there is a textChanged event and the resulting document is a set of complete sentences (fragments are not sent for labeling)
 * **Change Tag Colors** - Change the highlighting colors for different tags.  By default, 'Person' is red, 'Location' is blue, 'Organization' is green, and 'Miscellaneous' is purple.
 * **Toggle Highlighting** - Turn entity highlighting on/off.  Note that this only changes the appearance of your text editor, your entities are still being recorded.
 
