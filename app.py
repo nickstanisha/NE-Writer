@@ -6,6 +6,8 @@ from PyQt4.QtCore import Qt
 from ext import *
 from mitie import *
 
+__author__ = "Nick Stanisha, Peter Goldsborough"
+
 class Main(QtGui.QMainWindow):
 
     def __init__(self,parent=None):

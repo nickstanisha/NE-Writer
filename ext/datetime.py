@@ -3,6 +3,8 @@ from PyQt4.QtCore import Qt
 
 from time import strftime
 
+__author__ = "Peter Goldsborough"
+
 class DateTime(QtGui.QDialog):
     def __init__(self,parent = None):
         QtGui.QDialog.__init__(self, parent)

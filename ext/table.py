@@ -1,6 +1,8 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
+__author__ = "Peter Goldsborough"
+
 class Table(QtGui.QDialog):
     def __init__(self,parent = None):
         QtGui.QDialog.__init__(self, parent)

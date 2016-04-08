@@ -3,6 +3,8 @@ from PyQt4.QtCore import Qt
 
 import re
 
+__author__ = "Peter Goldsborough"
+
 class Find(QtGui.QDialog):
     def __init__(self, parent = None):
         
