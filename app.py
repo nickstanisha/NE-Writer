@@ -8,49 +8,40 @@ from mitie import *
 
 __author__ = "Nick Stanisha, Peter Goldsborough"
 
+
 class Main(QtGui.QMainWindow):
-
-    def __init__(self,parent=None):
-        QtGui.QMainWindow.__init__(self,parent)
-
+    def __init__(self, parent=None):
+        QtGui.QMainWindow.__init__(self, parent)
         self.filename = ""
-
         self.sentence_count = 0
-
         self.changesSaved = True
-
         self.loaded_language = False
-
         self.do_highlight = True
-
         self.ner = ''
-
-        self.colors = {'PERSON':QtGui.QColor.fromRgb(255, 0, 0, 100),
-                        'LOCATION':QtGui.QColor.fromRgb(0, 0, 255, 100),
-                        'ORGANIZATION':QtGui.QColor.fromRgb(0, 255, 0, 100),
-                        'MISC':QtGui.QColor.fromRgb(255, 0, 255, 100)
-                        }
-
-        self.initUI()  
+        self.colors = {'PERSON': QtGui.QColor.fromRgb(255, 0, 0, 100),
+                       'LOCATION': QtGui.QColor.fromRgb(0, 0, 255, 100),
+                       'ORGANIZATION': QtGui.QColor.fromRgb(0, 255, 0, 100),
+                       'MISC': QtGui.QColor.fromRgb(255, 0, 255, 100)
+                       }
+        self.initUI()
 
     def initToolbar(self):
-
-        self.newAction = QtGui.QAction(QtGui.QIcon("icons/new.png"),"New",self)
+        self.newAction = QtGui.QAction(QtGui.QIcon("icons/new.png"), "New", self)
         self.newAction.setShortcut("Ctrl+N")
         self.newAction.setStatusTip("Create a new document from scratch.")
         self.newAction.triggered.connect(self.new)
 
-        self.openAction = QtGui.QAction(QtGui.QIcon("icons/open.png"),"Open file",self)
+        self.openAction = QtGui.QAction(QtGui.QIcon("icons/open.png"), "Open file", self)
         self.openAction.setStatusTip("Open existing document")
         self.openAction.setShortcut("Ctrl+O")
         self.openAction.triggered.connect(self.open)
 
-        self.loadModelAction = QtGui.QAction(QtGui.QIcon("icons/open2.png"),"Load language model",self)
+        self.loadModelAction = QtGui.QAction(QtGui.QIcon("icons/open2.png"), "Load language model", self)
         self.loadModelAction.setStatusTip("Load MITIE NER model")
         self.loadModelAction.setShortcut("Ctrl+L")
         self.loadModelAction.triggered.connect(self.loadModel)
 
-        self.refreshTagsAction = QtGui.QAction(QtGui.QIcon("icons/redo.png"),"Refresh Entity Tags",self)
+        self.refreshTagsAction = QtGui.QAction(QtGui.QIcon("icons/redo.png"), "Refresh Entity Tags", self)
         self.refreshTagsAction.setStatusTip("Relabel all entities in document")
         self.refreshTagsAction.setShortcut("F5")
         self.refreshTagsAction.triggered.connect(self.get_tags)
@@ -70,77 +61,77 @@ class Main(QtGui.QMainWindow):
         self.changeMiscColor = QtGui.QAction(QtGui.QIcon("icons/highlight.png"), "Misc", self)
         self.changeMiscColor.triggered.connect(lambda: self.change_colors('MISC'))
 
-        self.saveAction = QtGui.QAction(QtGui.QIcon("icons/save.png"),"Save",self)
+        self.saveAction = QtGui.QAction(QtGui.QIcon("icons/save.png"), "Save", self)
         self.saveAction.setStatusTip("Save document")
         self.saveAction.setShortcut("Ctrl+S")
         self.saveAction.triggered.connect(self.save)
 
-        self.printAction = QtGui.QAction(QtGui.QIcon("icons/print.png"),"Print document",self)
+        self.printAction = QtGui.QAction(QtGui.QIcon("icons/print.png"), "Print document", self)
         self.printAction.setStatusTip("Print document")
         self.printAction.setShortcut("Ctrl+P")
         self.printAction.triggered.connect(self.printHandler)
 
-        self.previewAction = QtGui.QAction(QtGui.QIcon("icons/preview.png"),"Page view",self)
+        self.previewAction = QtGui.QAction(QtGui.QIcon("icons/preview.png"), "Page view", self)
         self.previewAction.setStatusTip("Preview page before printing")
         self.previewAction.setShortcut("Ctrl+Shift+P")
         self.previewAction.triggered.connect(self.preview)
 
-        self.findAction = QtGui.QAction(QtGui.QIcon("icons/find.png"),"Find and replace",self)
+        self.findAction = QtGui.QAction(QtGui.QIcon("icons/find.png"), "Find and replace", self)
         self.findAction.setStatusTip("Find and replace words in your document")
         self.findAction.setShortcut("Ctrl+F")
         self.findAction.triggered.connect(find.Find(self).show)
 
-        self.cutAction = QtGui.QAction(QtGui.QIcon("icons/cut.png"),"Cut to clipboard",self)
+        self.cutAction = QtGui.QAction(QtGui.QIcon("icons/cut.png"), "Cut to clipboard", self)
         self.cutAction.setStatusTip("Delete and copy text to clipboard")
         self.cutAction.setShortcut("Ctrl+X")
         self.cutAction.triggered.connect(self.text.cut)
 
-        self.copyAction = QtGui.QAction(QtGui.QIcon("icons/copy.png"),"Copy to clipboard",self)
+        self.copyAction = QtGui.QAction(QtGui.QIcon("icons/copy.png"), "Copy to clipboard", self)
         self.copyAction.setStatusTip("Copy text to clipboard")
         self.copyAction.setShortcut("Ctrl+C")
         self.copyAction.triggered.connect(self.text.copy)
 
-        self.pasteAction = QtGui.QAction(QtGui.QIcon("icons/paste.png"),"Paste from clipboard",self)
+        self.pasteAction = QtGui.QAction(QtGui.QIcon("icons/paste.png"), "Paste from clipboard", self)
         self.pasteAction.setStatusTip("Paste text from clipboard")
         self.pasteAction.setShortcut("Ctrl+V")
         self.pasteAction.triggered.connect(self.text.paste)
 
-        self.undoAction = QtGui.QAction(QtGui.QIcon("icons/undo.png"),"Undo last action",self)
+        self.undoAction = QtGui.QAction(QtGui.QIcon("icons/undo.png"), "Undo last action", self)
         self.undoAction.setStatusTip("Undo last action")
         self.undoAction.setShortcut("Ctrl+Z")
         self.undoAction.triggered.connect(self.text.undo)
 
-        self.redoAction = QtGui.QAction(QtGui.QIcon("icons/redo.png"),"Redo last undone thing",self)
+        self.redoAction = QtGui.QAction(QtGui.QIcon("icons/redo.png"), "Redo last undone thing", self)
         self.redoAction.setStatusTip("Redo last undone thing")
         self.redoAction.setShortcut("Ctrl+Y")
         self.redoAction.triggered.connect(self.text.redo)
 
-        dateTimeAction = QtGui.QAction(QtGui.QIcon("icons/calender.png"),"Insert current date/time",self)
+        dateTimeAction = QtGui.QAction(QtGui.QIcon("icons/calender.png"), "Insert current date/time", self)
         dateTimeAction.setStatusTip("Insert current date/time")
         dateTimeAction.setShortcut("Ctrl+D")
         dateTimeAction.triggered.connect(datetime.DateTime(self).show)
 
-        wordCountAction = QtGui.QAction(QtGui.QIcon("icons/count.png"),"See word/symbol count",self)
+        wordCountAction = QtGui.QAction(QtGui.QIcon("icons/count.png"), "See word/symbol count", self)
         wordCountAction.setStatusTip("See word/symbol count")
         wordCountAction.setShortcut("Ctrl+W")
         wordCountAction.triggered.connect(self.wordCount)
 
-        tableAction = QtGui.QAction(QtGui.QIcon("icons/table.png"),"Insert table",self)
+        tableAction = QtGui.QAction(QtGui.QIcon("icons/table.png"), "Insert table", self)
         tableAction.setStatusTip("Insert table")
         tableAction.setShortcut("Ctrl+T")
         tableAction.triggered.connect(table.Table(self).show)
 
-        imageAction = QtGui.QAction(QtGui.QIcon("icons/image.png"),"Insert image",self)
+        imageAction = QtGui.QAction(QtGui.QIcon("icons/image.png"), "Insert image", self)
         imageAction.setStatusTip("Insert image")
         imageAction.setShortcut("Ctrl+Shift+I")
         imageAction.triggered.connect(self.insertImage)
 
-        bulletAction = QtGui.QAction(QtGui.QIcon("icons/bullet.png"),"Insert bullet List",self)
+        bulletAction = QtGui.QAction(QtGui.QIcon("icons/bullet.png"), "Insert bullet List", self)
         bulletAction.setStatusTip("Insert bullet list")
         bulletAction.setShortcut("Ctrl+Shift+B")
         bulletAction.triggered.connect(self.bulletList)
 
-        numberedAction = QtGui.QAction(QtGui.QIcon("icons/number.png"),"Insert numbered List",self)
+        numberedAction = QtGui.QAction(QtGui.QIcon("icons/number.png"), "Insert numbered List", self)
         numberedAction.setStatusTip("Insert numbered list")
         numberedAction.setShortcut("Ctrl+Shift+L")
         numberedAction.triggered.connect(self.numberList)
@@ -193,48 +184,48 @@ class Main(QtGui.QMainWindow):
 
         fontSize.setValue(14)
 
-        fontColor = QtGui.QAction(QtGui.QIcon("icons/font-color.png"),"Change font color",self)
+        fontColor = QtGui.QAction(QtGui.QIcon("icons/font-color.png"), "Change font color", self)
         fontColor.triggered.connect(self.fontColorChanged)
 
-        boldAction = QtGui.QAction(QtGui.QIcon("icons/bold.png"),"Bold",self)
+        boldAction = QtGui.QAction(QtGui.QIcon("icons/bold.png"), "Bold", self)
         boldAction.triggered.connect(self.bold)
 
-        italicAction = QtGui.QAction(QtGui.QIcon("icons/italic.png"),"Italic",self)
+        italicAction = QtGui.QAction(QtGui.QIcon("icons/italic.png"), "Italic", self)
         italicAction.triggered.connect(self.italic)
 
-        underlAction = QtGui.QAction(QtGui.QIcon("icons/underline.png"),"Underline",self)
+        underlAction = QtGui.QAction(QtGui.QIcon("icons/underline.png"), "Underline", self)
         underlAction.triggered.connect(self.underline)
 
-        strikeAction = QtGui.QAction(QtGui.QIcon("icons/strike.png"),"Strike-out",self)
+        strikeAction = QtGui.QAction(QtGui.QIcon("icons/strike.png"), "Strike-out", self)
         strikeAction.triggered.connect(self.strike)
 
-        superAction = QtGui.QAction(QtGui.QIcon("icons/superscript.png"),"Superscript",self)
+        superAction = QtGui.QAction(QtGui.QIcon("icons/superscript.png"), "Superscript", self)
         superAction.triggered.connect(self.superScript)
 
-        subAction = QtGui.QAction(QtGui.QIcon("icons/subscript.png"),"Subscript",self)
+        subAction = QtGui.QAction(QtGui.QIcon("icons/subscript.png"), "Subscript", self)
         subAction.triggered.connect(self.subScript)
 
-        alignLeft = QtGui.QAction(QtGui.QIcon("icons/align-left.png"),"Align left",self)
+        alignLeft = QtGui.QAction(QtGui.QIcon("icons/align-left.png"), "Align left", self)
         alignLeft.triggered.connect(self.alignLeft)
 
-        alignCenter = QtGui.QAction(QtGui.QIcon("icons/align-center.png"),"Align center",self)
+        alignCenter = QtGui.QAction(QtGui.QIcon("icons/align-center.png"), "Align center", self)
         alignCenter.triggered.connect(self.alignCenter)
 
-        alignRight = QtGui.QAction(QtGui.QIcon("icons/align-right.png"),"Align right",self)
+        alignRight = QtGui.QAction(QtGui.QIcon("icons/align-right.png"), "Align right", self)
         alignRight.triggered.connect(self.alignRight)
 
-        alignJustify = QtGui.QAction(QtGui.QIcon("icons/align-justify.png"),"Align justify",self)
+        alignJustify = QtGui.QAction(QtGui.QIcon("icons/align-justify.png"), "Align justify", self)
         alignJustify.triggered.connect(self.alignJustify)
 
-        indentAction = QtGui.QAction(QtGui.QIcon("icons/indent.png"),"Indent Area",self)
+        indentAction = QtGui.QAction(QtGui.QIcon("icons/indent.png"), "Indent Area", self)
         indentAction.setShortcut("Ctrl+Tab")
         indentAction.triggered.connect(self.indent)
 
-        dedentAction = QtGui.QAction(QtGui.QIcon("icons/dedent.png"),"Dedent Area",self)
+        dedentAction = QtGui.QAction(QtGui.QIcon("icons/dedent.png"), "Dedent Area", self)
         dedentAction.setShortcut("Shift+Tab")
         dedentAction.triggered.connect(self.dedent)
 
-        backColor = QtGui.QAction(QtGui.QIcon("icons/highlight.png"),"Change background color",self)
+        backColor = QtGui.QAction(QtGui.QIcon("icons/highlight.png"), "Change background color", self)
         backColor.triggered.connect(self.highlight)
 
         self.formatbar = self.addToolBar("Format")
@@ -293,13 +284,13 @@ class Main(QtGui.QMainWindow):
         edit.addAction(self.findAction)
 
         # Toggling actions for the various bars
-        toolbarAction = QtGui.QAction("Toggle Toolbar",self)
+        toolbarAction = QtGui.QAction("Toggle Toolbar", self)
         toolbarAction.triggered.connect(self.toggleToolbar)
 
-        formatbarAction = QtGui.QAction("Toggle Formatbar",self)
+        formatbarAction = QtGui.QAction("Toggle Formatbar", self)
         formatbarAction.triggered.connect(self.toggleFormatbar)
 
-        statusbarAction = QtGui.QAction("Toggle Statusbar",self)
+        statusbarAction = QtGui.QAction("Toggle Statusbar", self)
         statusbarAction.triggered.connect(self.toggleStatusbar)
 
         view.addAction(toolbarAction)
@@ -344,7 +335,7 @@ class Main(QtGui.QMainWindow):
 
         self.text.textChanged.connect(self.changed)
 
-        self.setGeometry(100,100,1030,800)
+        self.setGeometry(100, 100, 1030, 800)
         self.setWindowTitle("Writer")
         self.setWindowIcon(QtGui.QIcon("icons/icon.png"))
 
@@ -384,16 +375,16 @@ class Main(QtGui.QMainWindow):
             color = self.colors[tag]
             cursor = self.text.textCursor()
             self.text.setTextCursor(cursor)
-            
+
             cursor_positions = [(m.start(), m.end()) for m in re.finditer(query, mystring)]
 
             for start, end in cursor_positions:
                 cursor = self.text.textCursor()
                 cursor.setPosition(start)
-                cursor.movePosition(QtGui.QTextCursor.Right,QtGui.QTextCursor.KeepAnchor,end - start)
-                #self.text.setTextBackgroundColor(color)
+                cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, end - start)
+                # self.text.setTextBackgroundColor(color)
                 self.text.setTextCursor(cursor)
-            
+
             self.text.setTextBackgroundColor(color)
 
         cursor = self.text.textCursor()
@@ -409,44 +400,42 @@ class Main(QtGui.QMainWindow):
                 pos = cursor.position()
 
                 cursor.setPosition(0)
-                cursor.movePosition(QtGui.QTextCursor.Right,QtGui.QTextCursor.KeepAnchor,end)
+                cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, end)
                 self.text.setTextCursor(cursor)
                 self.text.setTextBackgroundColor(QtGui.QColor.fromRgb(255, 255, 255))
-                
+
                 cursor = self.text.textCursor()
                 cursor.setPosition(pos)
                 self.text.setTextCursor(cursor)
             else:
-                
-                self.get_tags()
 
+                self.get_tags()
 
     def change_colors(self, tag):
         color = QtGui.QColorDialog.getColor()
         self.colors[tag] = color
         self.get_tags()
 
-
-    def closeEvent(self,event):
+    def closeEvent(self, event):
 
         if self.changesSaved:
 
             event.accept()
 
         else:
-        
+
             popup = QtGui.QMessageBox(self)
 
             popup.setIcon(QtGui.QMessageBox.Warning)
-            
+
             popup.setText("The document has been modified")
-            
+
             popup.setInformativeText("Do you want to save your changes?")
-            
-            popup.setStandardButtons(QtGui.QMessageBox.Save   |
-                                      QtGui.QMessageBox.Cancel |
-                                      QtGui.QMessageBox.Discard)
-            
+
+            popup.setStandardButtons(QtGui.QMessageBox.Save |
+                                     QtGui.QMessageBox.Cancel |
+                                     QtGui.QMessageBox.Discard)
+
             popup.setDefaultButton(QtGui.QMessageBox.Save)
 
             answer = popup.exec_()
@@ -460,7 +449,7 @@ class Main(QtGui.QMainWindow):
             else:
                 event.ignore()
 
-    def context(self,pos):
+    def context(self, pos):
 
         # Grab the cursor
         cursor = self.text.textCursor()
@@ -475,36 +464,32 @@ class Main(QtGui.QMainWindow):
 
             menu = QtGui.QMenu(self)
 
-            appendRowAction = QtGui.QAction("Append row",self)
+            appendRowAction = QtGui.QAction("Append row", self)
             appendRowAction.triggered.connect(lambda: table.appendRows(1))
 
-            appendColAction = QtGui.QAction("Append column",self)
+            appendColAction = QtGui.QAction("Append column", self)
             appendColAction.triggered.connect(lambda: table.appendColumns(1))
 
-
-            removeRowAction = QtGui.QAction("Remove row",self)
+            removeRowAction = QtGui.QAction("Remove row", self)
             removeRowAction.triggered.connect(self.removeRow)
 
-            removeColAction = QtGui.QAction("Remove column",self)
+            removeColAction = QtGui.QAction("Remove column", self)
             removeColAction.triggered.connect(self.removeCol)
 
-
-            insertRowAction = QtGui.QAction("Insert row",self)
+            insertRowAction = QtGui.QAction("Insert row", self)
             insertRowAction.triggered.connect(self.insertRow)
 
-            insertColAction = QtGui.QAction("Insert column",self)
+            insertColAction = QtGui.QAction("Insert column", self)
             insertColAction.triggered.connect(self.insertCol)
 
-
-            mergeAction = QtGui.QAction("Merge cells",self)
+            mergeAction = QtGui.QAction("Merge cells", self)
             mergeAction.triggered.connect(lambda: table.mergeCells(cursor))
 
             # Only allow merging if there is a selection
             if not cursor.hasSelection():
                 mergeAction.setEnabled(False)
 
-
-            splitAction = QtGui.QAction("Split cells",self)
+            splitAction = QtGui.QAction("Split cells", self)
 
             cell = table.cellAt(cursor)
 
@@ -512,11 +497,10 @@ class Main(QtGui.QMainWindow):
             # than a normal cell
             if cell.rowSpan() > 1 or cell.columnSpan() > 1:
 
-                splitAction.triggered.connect(lambda: table.splitCell(cell.row(),cell.column(),1,1))
+                splitAction.triggered.connect(lambda: table.splitCell(cell.row(), cell.column(), 1, 1))
 
             else:
                 splitAction.setEnabled(False)
-
 
             menu.addAction(appendRowAction)
             menu.addAction(appendColAction)
@@ -548,7 +532,7 @@ class Main(QtGui.QMainWindow):
 
             if self.formatbar.isVisible():
                 pos.setY(pos.y() + 45)
-                
+
             # Move the menu to the new position
             menu.move(pos)
 
@@ -556,7 +540,7 @@ class Main(QtGui.QMainWindow):
 
         else:
 
-            event = QtGui.QContextMenuEvent(QtGui.QContextMenuEvent.Mouse,QtCore.QPoint())
+            event = QtGui.QContextMenuEvent(QtGui.QContextMenuEvent.Mouse, QtCore.QPoint())
 
             self.text.contextMenuEvent(event)
 
@@ -573,7 +557,7 @@ class Main(QtGui.QMainWindow):
         cell = table.cellAt(cursor)
 
         # Delete the cell's row
-        table.removeRows(cell.row(),1)
+        table.removeRows(cell.row(), 1)
 
     def removeCol(self):
 
@@ -588,7 +572,7 @@ class Main(QtGui.QMainWindow):
         cell = table.cellAt(cursor)
 
         # Delete the cell's column
-        table.removeColumns(cell.column(),1)
+        table.removeColumns(cell.column(), 1)
 
     def insertRow(self):
 
@@ -603,7 +587,7 @@ class Main(QtGui.QMainWindow):
         cell = table.cellAt(cursor)
 
         # Insert a new row at the cell's position
-        table.insertRows(cell.row(),1)
+        table.insertRows(cell.row(), 1)
 
     def insertCol(self):
 
@@ -618,8 +602,7 @@ class Main(QtGui.QMainWindow):
         cell = table.cellAt(cursor)
 
         # Insert a new row at the cell's position
-        table.insertColumns(cell.column(),1)
-
+        table.insertColumns(cell.column(), 1)
 
     def toggleToolbar(self):
 
@@ -651,15 +634,14 @@ class Main(QtGui.QMainWindow):
     def open(self):
 
         # Get filename and show only .writer files
-        self.filename = QtGui.QFileDialog.getOpenFileName(self, 'Open File',".","(*.writer)")
+        self.filename = QtGui.QFileDialog.getOpenFileName(self, 'Open File', ".", "(*.writer)")
 
         if self.filename:
-            with open(self.filename,"rt") as file:
+            with open(self.filename, "rt") as file:
                 self.text.setText(file.read())
 
-
     def loadModel(self):
-        modelfile = QtGui.QFileDialog.getOpenFileName(self, 'Open File','.','(*.dat)')
+        modelfile = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.', '(*.dat)')
         if modelfile:
             QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
             self.ner = self.ner = named_entity_extractor(str(modelfile))
@@ -671,30 +653,30 @@ class Main(QtGui.QMainWindow):
 
         # Only open dialog if there is no filename yet
         if not self.filename:
-          self.filename = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
+            self.filename = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
 
         if self.filename:
-            
+
             # Append extension if not there yet
             if not self.filename.endsWith(".writer"):
-              self.filename += ".writer"
+                self.filename += ".writer"
 
             if self.loaded_language:
-                entity_filename = ''.join(str(i) for i in self.filename.split('.')[:-1])+'.entities'
+                entity_filename = ''.join(str(i) for i in self.filename.split('.')[:-1]) + '.entities'
                 tokens = tokenize(str(self.text.toPlainText()))
                 entities = self.get_tags()
 
                 # Encode as JSON
-                data = {'PERSON':{'count':0, 'entities':dict()}, 
-                        'LOCATION':{'count':0, 'entities':dict()}, 
-                        'ORGANIZATION':{'count':0, 'entities':dict()},
-                        'MISC':{'count':0, 'entities':dict()}}
+                data = {'PERSON': {'count': 0, 'entities': dict()},
+                        'LOCATION': {'count': 0, 'entities': dict()},
+                        'ORGANIZATION': {'count': 0, 'entities': dict()},
+                        'MISC': {'count': 0, 'entities': dict()}}
 
                 for e in entities:
                     tag = e[1]
                     text = " ".join(tokens[i] for i in e[0])
                     if tag not in data:
-                        data[tag] = {'count':1}
+                        data[tag] = {'count': 1}
                         data[tag]['entities'] = dict()
                     else:
                         data[tag]['count'] += 1
@@ -704,12 +686,12 @@ class Main(QtGui.QMainWindow):
                     else:
                         data[tag]['entities'][text] += 1
 
-                with open(entity_filename,'w') as outfile:
+                with open(entity_filename, 'w') as outfile:
                     json.dump(data, outfile)
 
             # We just store the contents of the text file along with the
             # format in html, which Qt does in a very nice way for us
-            with open(self.filename,"wt") as file:
+            with open(self.filename, "wt") as file:
                 file.write(self.text.toHtml())
 
             self.changesSaved = True
@@ -740,7 +722,7 @@ class Main(QtGui.QMainWindow):
         line = cursor.blockNumber() + 1
         col = cursor.columnNumber()
 
-        self.statusbar.showMessage("Line: {} | Column: {}".format(line,col))
+        self.statusbar.showMessage("Line: {} | Column: {}".format(line, col))
 
     def wordCount(self):
 
@@ -753,10 +735,11 @@ class Main(QtGui.QMainWindow):
     def insertImage(self):
 
         # Get image file name
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Insert image',".","Images (*.png *.xpm *.jpg *.bmp *.gif)")
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Insert image', ".",
+                                                     "Images (*.png *.xpm *.jpg *.bmp *.gif)")
 
         if filename:
-            
+
             # Create image object
             image = QtGui.QImage(filename)
 
@@ -774,7 +757,7 @@ class Main(QtGui.QMainWindow):
 
                 cursor = self.text.textCursor()
 
-                cursor.insertImage(image,filename)
+                cursor.insertImage(image, filename)
 
     def fontColorChanged(self):
 
@@ -895,7 +878,6 @@ class Main(QtGui.QMainWindow):
 
             # Iterate over lines (diff absolute value)
             for n in range(abs(diff) + 1):
-
                 # Move to start of each line
                 cursor.movePosition(QtGui.QTextCursor.StartOfLine)
 
@@ -910,7 +892,7 @@ class Main(QtGui.QMainWindow):
 
             cursor.insertText("\t")
 
-    def handleDedent(self,cursor):
+    def handleDedent(self, cursor):
 
         cursor.movePosition(QtGui.QTextCursor.StartOfLine)
 
@@ -951,7 +933,6 @@ class Main(QtGui.QMainWindow):
 
             # Iterate over lines
             for n in range(abs(diff) + 1):
-
                 self.handleDedent(cursor)
 
                 # Move up
@@ -959,7 +940,6 @@ class Main(QtGui.QMainWindow):
 
         else:
             self.handleDedent(cursor)
-
 
     def bulletList(self):
 
@@ -983,6 +963,7 @@ def main():
     main.show()
 
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()

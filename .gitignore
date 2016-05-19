@@ -1,3 +1,4 @@
+*.idea/
 # MITIE Shared Libraries
 cygmitie.dll
 libmitie.dll.a
